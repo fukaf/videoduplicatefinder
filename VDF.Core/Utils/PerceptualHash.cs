@@ -30,6 +30,11 @@ namespace VDF.Core.Utils {
 		private readonly ulong hash3;
 		private readonly ulong hash4;
 
+		public ulong Hash1 => hash1;
+		public ulong Hash2 => hash2;
+		public ulong Hash3 => hash3;
+		public ulong Hash4 => hash4;
+
 		public PerceptualHash(ulong h1, ulong h2, ulong h3, ulong h4) {
 			hash1 = h1;
 			hash2 = h2;

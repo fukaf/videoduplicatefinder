@@ -385,10 +385,8 @@ namespace VDF.Core {
 					else if (!entry.IsImage) {
 						if (!FfmpegEngine.GetGrayBytesFromVideo(entry, positionList, Settings.ExtendedFFToolsLogging))
 							entry.invalid = true;
-					}
-
-					// Compute perceptual hash if fast hashing is enabled and hash doesn't exist
-					if (Settings.UseFastHashing && !entry.invalid && entry.PerceptualHash == null) {
+					}				// Compute perceptual hash if fast hashing is enabled and hash doesn't exist
+				if (Settings.UseFastHashing && !entry.invalid && entry.PerceptualHash.IsEmpty) {
 						try {
 							if (entry.IsImage) {
 								entry.PerceptualHash = HashUtils.ComputeImageHash(entry.Path);
@@ -466,10 +464,9 @@ namespace VDF.Core {
 
 		bool CheckIfDuplicateWithFastHashing(FileEntry entry, FileEntry compItem, out float difference) {
 			difference = 1f;
-			
-			// If both files have perceptual hashes, use fast comparison first
-			if (entry.PerceptualHash != null && compItem.PerceptualHash != null) {
-				float hashSimilarity = entry.PerceptualHash.Value.SimilarityPercentage(compItem.PerceptualHash.Value);
+					// If both files have perceptual hashes, use fast comparison first
+		if (!entry.PerceptualHash.IsEmpty && !compItem.PerceptualHash.IsEmpty) {
+			float hashSimilarity = entry.PerceptualHash.SimilarityPercentage(compItem.PerceptualHash);
 				
 				// If hash similarity is below threshold, files are definitely not duplicates
 				if (hashSimilarity < Settings.FastHashingSimilarityThreshold) {

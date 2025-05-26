@@ -14,6 +14,7 @@
 // */
 //
 
+using System.Linq;
 using System.Runtime.CompilerServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -40,14 +41,13 @@ namespace VDF.Core.Utils {
 			}
 
 			// For videos, combine hashes from multiple frames
-			List<ulong> frameHashes = new();
-			foreach (var kvp in grayBytes.OrderBy(x => x.Key)) {
+			List<ulong> frameHashes = new();			foreach (var kvp in grayBytes.OrderBy(x => x.Key)) {
 				if (kvp.Value != null) {
 					var frameHash = ComputeSingleFrameHash(kvp.Value);
-					frameHashes.Add(frameHash.hash1);
-					frameHashes.Add(frameHash.hash2);
-					frameHashes.Add(frameHash.hash3);
-					frameHashes.Add(frameHash.hash4);
+					frameHashes.Add(frameHash.Hash1);
+					frameHashes.Add(frameHash.Hash2);
+					frameHashes.Add(frameHash.Hash3);
+					frameHashes.Add(frameHash.Hash4);
 				}
 			}
 
@@ -209,6 +209,49 @@ namespace VDF.Core.Utils {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool AreHashesSimilar(PerceptualHash hash1, PerceptualHash hash2, float thresholdPercent) {
 			return CompareHashes(hash1, hash2) >= thresholdPercent;
+		}
+
+		/// <summary>
+		/// Compute perceptual hash for an image file
+		/// </summary>
+		public static PerceptualHash ComputeImageHash(string imagePath) {
+			try {
+				using var fileStream = File.OpenRead(imagePath);
+				using var image = Image.Load(fileStream);
+				
+				// Resize to 16x16 for consistent hashing
+				image.Mutate(x => x.Resize(16, 16));
+				
+				// Convert to grayscale bytes
+				var grayBytes = GrayBytesUtils.GetGrayScaleValues(image);
+				if (grayBytes == null) {
+					return new PerceptualHash(0, 0, 0, 0);
+				}
+				
+				// Create dictionary with single frame
+				var grayBytesDict = new Dictionary<double, byte[]?> { { 0, grayBytes } };
+				return ComputePerceptualHash(grayBytesDict, true);
+			}
+			catch (Exception) {
+				return new PerceptualHash(0, 0, 0, 0);
+			}
+		}
+
+		/// <summary>
+		/// Compute perceptual hash for video frames
+		/// </summary>
+		public static PerceptualHash ComputeVideoHash(List<byte[]> frames) {
+			if (frames == null || frames.Count == 0) {
+				return new PerceptualHash(0, 0, 0, 0);
+			}
+			
+			// Convert frame list to dictionary format
+			var grayBytesDict = new Dictionary<double, byte[]?>();
+			for (int i = 0; i < frames.Count; i++) {
+				grayBytesDict.Add(i, frames[i]);
+			}
+			
+			return ComputePerceptualHash(grayBytesDict, false);
 		}
 	}
 }
