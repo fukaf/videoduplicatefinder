@@ -387,6 +387,31 @@ namespace VDF.Core {
 							entry.invalid = true;
 					}
 
+					// Compute perceptual hash if fast hashing is enabled and hash doesn't exist
+					if (Settings.UseFastHashing && !entry.invalid && entry.PerceptualHash == null) {
+						try {
+							if (entry.IsImage) {
+								entry.PerceptualHash = HashUtils.ComputeImageHash(entry.Path);
+							}
+							else if (entry.grayBytes.Count > 0) {
+								// Extract frames for perceptual hashing
+								var frames = new List<byte[]>();
+								foreach (var position in positionList) {
+									var grayBytesKey = entry.GetGrayBytesIndex(position);
+									if (entry.grayBytes.TryGetValue(grayBytesKey, out var grayBytes) && grayBytes != null) {
+										frames.Add(grayBytes);
+									}
+								}
+								if (frames.Count > 0) {
+									entry.PerceptualHash = HashUtils.ComputeVideoHash(frames);
+								}
+							}
+						}
+						catch (Exception ex) {
+							Logger.Instance.Info($"Failed to compute perceptual hash for {entry.Path}: {ex.Message}");
+						}
+					}
+
 					IncrementProgress(entry.Path);
 					return ValueTask.CompletedTask;
 				});
@@ -439,6 +464,28 @@ namespace VDF.Core {
 			return !float.IsNaN(difference);
 		}
 
+		bool CheckIfDuplicateWithFastHashing(FileEntry entry, FileEntry compItem, out float difference) {
+			difference = 1f;
+			
+			// If both files have perceptual hashes, use fast comparison first
+			if (entry.PerceptualHash != null && compItem.PerceptualHash != null) {
+				float hashSimilarity = entry.PerceptualHash.Value.SimilarityPercentage(compItem.PerceptualHash.Value);
+				
+				// If hash similarity is below threshold, files are definitely not duplicates
+				if (hashSimilarity < Settings.FastHashingSimilarityThreshold) {
+					difference = 1f - (hashSimilarity / 100f);
+					return false;
+				}
+				
+				// Hash similarity is high enough, but we still need to do detailed comparison
+				// to get accurate difference percentage for final scoring
+				return CheckIfDuplicate(entry, null, compItem, out difference);
+			}
+			
+			// Fallback to traditional comparison if hashes are not available
+			return CheckIfDuplicate(entry, null, compItem, out difference);
+		}
+
 		void ScanForDuplicates() {
 			Dictionary<string, DuplicateItem>? duplicateDict = new();
 
@@ -453,6 +500,12 @@ namespace VDF.Core {
 			}
 
 			Logger.Instance.Info($"Scanning for duplicates in {ScanList.Count:N0} files");
+			
+			// Determine if we should use fast hashing based on file count and settings
+			bool useFastHashing = Settings.UseFastHashing && ScanList.Count >= Settings.FastHashingThreshold;
+			if (useFastHashing) {
+				Logger.Instance.Info("Using fast perceptual hashing for initial comparison");
+			}
 
 			InitProgress(ScanList.Count);
 
@@ -485,7 +538,10 @@ namespace VDF.Core {
 
 
 						flags = DuplicateFlags.None;
-						isDuplicate = CheckIfDuplicate(entry, null, compItem, out difference);
+						isDuplicate = useFastHashing ? 
+							CheckIfDuplicateWithFastHashing(entry, compItem, out difference) :
+							CheckIfDuplicate(entry, null, compItem, out difference);
+							
 						if (Settings.CompareHorizontallyFlipped &&
 							CheckIfDuplicate(entry, flippedGrayBytes, compItem, out float flippedDifference)) {
 							if (!isDuplicate || flippedDifference < difference) {

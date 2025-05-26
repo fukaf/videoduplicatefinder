@@ -172,14 +172,32 @@ namespace VDF.GUI.Data {
 			get => _PercentDurationDifference;
 			set => this.RaiseAndSetIfChanged(ref _PercentDurationDifference, value);
 		}
-		int _Thumbnails = 1;
-		[JsonPropertyName("Thumbnails")]
-		public int Thumbnails {
-			get => _Thumbnails;
-			set => this.RaiseAndSetIfChanged(ref _Thumbnails, value);
-		}
-		[JsonPropertyName("CustomCommands")]
-		public CustomActionCommands CustomCommands { get; set; } = new();
+	int _Thumbnails = 1;
+	[JsonPropertyName("Thumbnails")]
+	public int Thumbnails {
+		get => _Thumbnails;
+		set => this.RaiseAndSetIfChanged(ref _Thumbnails, value);
+	}
+	bool _UseFastHashing = true;
+	[JsonPropertyName("UseFastHashing")]
+	public bool UseFastHashing {
+		get => _UseFastHashing;
+		set => this.RaiseAndSetIfChanged(ref _UseFastHashing, value);
+	}
+	int _FastHashingThreshold = 100;
+	[JsonPropertyName("FastHashingThreshold")]
+	public int FastHashingThreshold {
+		get => _FastHashingThreshold;
+		set => this.RaiseAndSetIfChanged(ref _FastHashingThreshold, value);
+	}
+	int _FastHashingSimilarityThreshold = 95;
+	[JsonPropertyName("FastHashingSimilarityThreshold")]
+	public int FastHashingSimilarityThreshold {
+		get => _FastHashingSimilarityThreshold;
+		set => this.RaiseAndSetIfChanged(ref _FastHashingSimilarityThreshold, value);
+	}
+	[JsonPropertyName("CustomCommands")]
+	public CustomActionCommands CustomCommands { get; set; } = new();
 		string _CustomDatabaseFolder = string.Empty;
 		[JsonPropertyName("CustomDatabaseFolder")]
 		public string CustomDatabaseFolder {

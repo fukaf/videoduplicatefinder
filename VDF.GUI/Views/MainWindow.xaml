@@ -1289,6 +1289,46 @@
                                                         Minimum="-1"
                                                         ToolTip.Tip="Limits the amount of concurrent tasks. A value of -1 leaves it up to the system to decide, a value of 1 is most stable."
                                                         Value="{Binding Source={x:Static Settings:SettingsFile.Instance}, Path=MaxDegreeOfParallelism}" />
+                                                    
+                                                    <!-- Fast Hashing Settings -->
+                                                    <TextBlock
+                                                        Margin="0,10,0,0"
+                                                        VerticalAlignment="Center"
+                                                        FontWeight="Bold"
+                                                        Text="Fast Hashing (Performance)" />
+                                                    <CheckBox
+                                                        Margin="0,5,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Content="Enable Fast Hashing"
+                                                        IsChecked="{Binding Source={x:Static Settings:SettingsFile.Instance}, Path=UseFastHashing}"
+                                                        IsThreeState="False"
+                                                        ToolTip.Tip="Use perceptual hashing for initial duplicate screening to improve performance on large collections. Automatically enabled when file count exceeds threshold." />
+                                                    <TextBlock
+                                                        Margin="0,5,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Text="Fast Hashing Threshold:" />
+                                                    <NumericUpDown
+                                                        Width="200"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        Maximum="10000"
+                                                        Minimum="10"
+                                                        ToolTip.Tip="Number of files above which fast hashing is automatically used. Lower values make scanning faster but may reduce accuracy for small collections."
+                                                        Value="{Binding Source={x:Static Settings:SettingsFile.Instance}, Path=FastHashingThreshold}" />
+                                                    <TextBlock
+                                                        Margin="0,5,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Text="Fast Hashing Similarity Threshold:" />
+                                                    <NumericUpDown
+                                                        Width="200"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        FormatString="\{0\}%"
+                                                        Maximum="100"
+                                                        Minimum="50"
+                                                        ToolTip.Tip="Minimum similarity percentage for fast hash matching before detailed comparison. Higher values are more accurate but may miss some duplicates."
+                                                        Value="{Binding Source={x:Static Settings:SettingsFile.Instance}, Path=FastHashingSimilarityThreshold}" />
+                                                    
                                                     <TextBlock VerticalAlignment="Center" Text="Custom FF Arguments:" />
                                                     <TextBox
                                                         VerticalAlignment="Center"

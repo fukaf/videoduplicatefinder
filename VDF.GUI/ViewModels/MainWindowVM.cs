@@ -819,6 +819,9 @@ namespace VDF.GUI.ViewModels {
 			Scanner.Settings.IgnoreBlackPixels = SettingsFile.Instance.IgnoreBlackPixels;
 			Scanner.Settings.IgnoreWhitePixels = SettingsFile.Instance.IgnoreWhitePixels;
 			Scanner.Settings.CompareHorizontallyFlipped = SettingsFile.Instance.CompareHorizontallyFlipped;
+			Scanner.Settings.UseFastHashing = SettingsFile.Instance.UseFastHashing;
+			Scanner.Settings.FastHashingThreshold = SettingsFile.Instance.FastHashingThreshold;
+			Scanner.Settings.FastHashingSimilarityThreshold = SettingsFile.Instance.FastHashingSimilarityThreshold;
 			Scanner.Settings.CustomDatabaseFolder = SettingsFile.Instance.CustomDatabaseFolder;
 			Scanner.Settings.IncludeNonExistingFiles = SettingsFile.Instance.IncludeNonExistingFiles;
 			Scanner.Settings.FilterByFilePathContains = SettingsFile.Instance.FilterByFilePathContains;

@@ -63,11 +63,21 @@ namespace VDF.Core {
 		public DateTime DateCreated;
 		[ProtoMember(7)]
 		public DateTime DateModified;
-		[ProtoMember(8)]
-		public long FileSize;
+	[ProtoMember(8)]
+	public long FileSize;
+	[ProtoMember(9)]
+	public byte[]? PerceptualHashBytes;
 
-		[ProtoIgnore]
-		internal bool invalid = true;
+	[ProtoIgnore]
+	internal bool invalid = true;
+
+	[ProtoIgnore]
+	public PerceptualHash PerceptualHash {
+		get => PerceptualHashBytes != null && PerceptualHashBytes.Length == 32 
+			? PerceptualHash.FromBytes(PerceptualHashBytes) 
+			: new PerceptualHash(0, 0, 0, 0);
+		set => PerceptualHashBytes = value.ToBytes();
+	}
 
 		[ProtoIgnore]
 		internal bool IsImage {

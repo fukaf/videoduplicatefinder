@@ -54,5 +54,10 @@ namespace VDF.Core {
 		public bool FilterByFileSize;
 		public int MaximumFileSize;
 		public int MinimumFileSize;
+
+		// Fast perceptual hashing settings
+		public bool UseFastHashing = true;
+		public int FastHashingThreshold = 100; // Number of files above which to use fast hashing
+		public float FastHashingSimilarityThreshold = 95f; // Similarity threshold for fast hash matching
 	}
 }
